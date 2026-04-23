@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Room {
+  id          String        @id @default(uuid())
+  name        String
+  description String?
+  pricePerHour Float
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  bookings    Booking[]
+  blockedTimes BlockedTime[]
+}
+
+model Booking {
+  id            String   @id @default(uuid())
+  roomId        String
+  room          Room     @relation(fields: [roomId], references: [id])
+  customerName  String
+  customerEmail String
+  customerPhone String
+  date          String   // Format: YYYY-MM-DD
+  startTime     Int      // Hour of day (0-23)
+  duration      Int      // In hours
+  totalPrice    Float
+  status        String   @default("PENDING") // PENDING, CONFIRMED, CANCELLED
+  paymentId     String?  // MercadoPago preference/payment ID
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model BlockedTime {
+  id        String   @id @default(uuid())
+  roomId    String
+  room      Room     @relation(fields: [roomId], references: [id])
+  date      String   // Format: YYYY-MM-DD
+  startTime Int      // Hour of day (0-23)
+  duration  Int      // In hours
+  reason    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

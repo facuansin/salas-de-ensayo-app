@@ -1,0 +1,161 @@
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 40px;
+  font-size: 2.5rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+}
+
+.panel {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 30px;
+}
+
+.panelTitle {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 10px;
+}
+
+.dateInput {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 6px;
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+  font-family: inherit;
+}
+
+.dateInput::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
+.roomCard {
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.roomHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.roomName {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.roomPrice {
+  color: var(--accent-color);
+  font-weight: bold;
+}
+
+.timeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 10px;
+}
+
+.timeSlot {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 10px;
+  text-align: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.timeSlot:not(:disabled):hover {
+  border-color: var(--accent-color);
+}
+
+.timeSlot.selected {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+  color: white;
+}
+
+.timeSlot:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  background-color: #000;
+}
+
+/* Form Styles */
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-secondary);
+}
+
+.input {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 6px;
+  font-family: inherit;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+}
+
+.summary {
+  background-color: rgba(229, 57, 53, 0.1);
+  border: 1px solid rgba(229, 57, 53, 0.3);
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(229, 57, 53, 0.3);
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
