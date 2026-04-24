@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import styles from './page.module.css';
-import { Mic2, Ampersand, MapPin, Globe, MessageCircle, Phone, CalendarDays } from 'lucide-react';
+import { Mic2, Ampersand, MapPin, Globe, MessageCircle, Phone, CalendarDays, Wind, Coffee, Bike } from 'lucide-react';
+import RoomCarousel from '@/components/RoomCarousel';
 
 export default function Home() {
   return (
@@ -28,31 +29,42 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Benefits Section */}
-      <section id="beneficios" className={styles.section}>
+      {/* Salas Section */}
+      <section id="salas" className={`${styles.section} ${styles.darkBg}`}>
         <div className="container">
-          <h2 className="section-title">Por qué elegirnos</h2>
+          <h2 className="section-title">Nuestras Salas</h2>
+          <p style={{ textAlign: 'center', color: 'var(--text-secondary)', marginBottom: '3rem', fontSize: '1.2rem' }}>
+            Descubrí los espacios diseñados específicamente para potenciar tu creatividad.
+          </p>
+          <RoomCarousel />
+        </div>
+      </section>
+
+      {/* Services Section */}
+      <section id="servicios" className={styles.section}>
+        <div className="container">
+          <h2 className="section-title">Servicios disponibles</h2>
           <div className={styles.benefitsGrid}>
             <div className={styles.card}>
               <div className={styles.cardIcon}>
-                <Ampersand size={48} />
+                <Wind size={48} />
               </div>
-              <h3 className={styles.cardTitle}>Equipamiento Premium</h3>
-              <p className={styles.cardText}>Amplificadores valvulares, baterías de alta gama y sistemas de monitoreo independientes.</p>
+              <h3 className={styles.cardTitle}>Climatización Ideal</h3>
+              <p className={styles.cardText}>Todas nuestras salas cuentan con aire acondicionado frío/calor para que ensayes cómodo en cualquier época del año.</p>
             </div>
             <div className={styles.card}>
               <div className={styles.cardIcon}>
-                <Mic2 size={48} />
+                <Coffee size={48} />
               </div>
-              <h3 className={styles.cardTitle}>Acústica Profesional</h3>
-              <p className={styles.cardText}>Paneles absorbentes y trampas de graves diseñadas por ingenieros acústicos.</p>
+              <h3 className={styles.cardTitle}>Zonas de Relax</h3>
+              <p className={styles.cardText}>Relajate antes o después del ensayo en nuestro amplio patio y cómoda sala de estar equipada.</p>
             </div>
             <div className={styles.card}>
               <div className={styles.cardIcon}>
-                <CalendarDays size={48} />
+                <Bike size={48} />
               </div>
-              <h3 className={styles.cardTitle}>Reservas 24/7</h3>
-              <p className={styles.cardText}>Gestioná tus turnos de forma online en cualquier momento con confirmación inmediata.</p>
+              <h3 className={styles.cardTitle}>Estacionamiento Seguro</h3>
+              <p className={styles.cardText}>Contamos con un lugar seguro y cerrado para dejar bicicletas y motos mientras disfrutas de tu turno.</p>
             </div>
           </div>
         </div>

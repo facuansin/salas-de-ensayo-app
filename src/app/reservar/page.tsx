@@ -154,7 +154,7 @@ export default function ReservarPage() {
           {!selectedRoom || selectedTime === null ? (
             <p style={{ color: 'var(--text-secondary)' }}>Seleccioná una sala y un horario para continuar.</p>
           ) : (
-            <form onSubmit={handleBook}>
+            <>
               <div className={styles.summary}>
                 <div className={styles.summaryRow}>
                   <span>Sala:</span>
@@ -177,49 +177,68 @@ export default function ReservarPage() {
                     <option value={4} style={{color: '#000'}}>4 horas</option>
                   </select>
                 </div>
-                <div className={styles.totalRow}>
-                  <span>Total:</span>
+                
+                <hr style={{ borderTop: '1px solid var(--border-color)', margin: '15px 0' }}/>
+                
+                <div className={styles.summaryRow}>
+                  <span>Precio Total:</span>
+                  <span>${(selectedRoom.pricePerHour * duration).toLocaleString()}</span>
+                </div>
+                <div className={styles.totalRow} style={{ marginTop: '10px' }}>
+                  <span>Seña requerida (50%):</span>
                   <span style={{ color: 'var(--accent-color)' }}>
-                    ${(selectedRoom.pricePerHour * duration).toLocaleString()}
+                    ${((selectedRoom.pricePerHour * duration) * 0.5).toLocaleString()}
                   </span>
                 </div>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '10px', lineHeight: 1.4 }}>
+                  * El resto del pago se realiza presencialmente en el local. Podés cancelar la seña enviando un mensaje con al menos <strong>48 horas de anticipación</strong>.
+                </p>
               </div>
 
-              <div className={styles.formGroup}>
-                <label className={styles.label}>Nombre completo</label>
-                <input 
-                  required
-                  type="text" 
-                  className={styles.input}
-                  value={customerInfo.name}
-                  onChange={e => setCustomerInfo({...customerInfo, name: e.target.value})}
-                />
-              </div>
-              <div className={styles.formGroup}>
-                <label className={styles.label}>Email</label>
-                <input 
-                  required
-                  type="email" 
-                  className={styles.input}
-                  value={customerInfo.email}
-                  onChange={e => setCustomerInfo({...customerInfo, email: e.target.value})}
-                />
-              </div>
-              <div className={styles.formGroup}>
-                <label className={styles.label}>WhatsApp / Teléfono</label>
-                <input 
-                  required
-                  type="tel" 
-                  className={styles.input}
-                  value={customerInfo.phone}
-                  onChange={e => setCustomerInfo({...customerInfo, phone: e.target.value})}
-                />
-              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '20px' }}>
+                <form onSubmit={handleBook} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                  <div className={styles.formGroup}>
+                    <input 
+                      required
+                      placeholder="Nombre completo"
+                      type="text" 
+                      className={styles.input}
+                      value={customerInfo.name}
+                      onChange={e => setCustomerInfo({...customerInfo, name: e.target.value})}
+                    />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <input 
+                      required
+                      placeholder="WhatsApp / Teléfono"
+                      type="tel" 
+                      className={styles.input}
+                      value={customerInfo.phone}
+                      onChange={e => setCustomerInfo({...customerInfo, phone: e.target.value})}
+                    />
+                  </div>
+                  <button type="submit" className="btn-primary" style={{ width: '100%' }}>
+                    Abonar Seña (MercadoPago)
+                  </button>
+                </form>
 
-              <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '10px' }}>
-                Confirmar y Pagar
-              </button>
-            </form>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <hr style={{ flex: 1, borderColor: 'var(--border-color)' }} />
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>O también podés</span>
+                  <hr style={{ flex: 1, borderColor: 'var(--border-color)' }} />
+                </div>
+
+                <a 
+                  href={`https://wa.me/5492215588276?text=Hola! Me gustaría reservar la ${selectedRoom.name} el día ${date.split('-').reverse().join('/')} a las ${selectedTime}:00hs por ${duration} hora/s.`} 
+                  target="_blank" 
+                  rel="noreferrer"
+                  className="btn-secondary" 
+                  style={{ width: '100%', textAlign: 'center', backgroundColor: '#25D366', borderColor: '#25D366', color: '#fff' }}
+                >
+                  Reservar por WhatsApp
+                </a>
+              </div>
+            </>
           )}
         </div>
       </div>
