@@ -103,56 +103,70 @@ export default function ReservarPage() {
       <h1 className={styles.title}>RESERVAR TU SALA</h1>
       
       <div className={styles.grid}>
-        {/* Left Column: Date & Rooms */}
+        {/* Left Column: Flow */}
         <div className={styles.panel}>
-          <h2 className={styles.panelTitle}>1. Elegí la fecha</h2>
-          <input 
-            type="date" 
-            className={styles.dateInput}
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            min={new Date().toISOString().split('T')[0]}
-          />
+          <h2 className={styles.panelTitle}>1. Elegí la sala</h2>
+          <div className={styles.roomSelectGrid}>
+             {rooms.map(room => (
+               <button 
+                 key={room.id}
+                 className={selectedRoom?.id === room.id ? styles.selectedRoomBtn : styles.roomBtn}
+                 onClick={() => { setSelectedRoom(room); setSelectedTime(null); }}
+               >
+                 <span className={styles.roomName}>{room.name}</span>
+                 <span className={styles.roomPrice}>${room.pricePerHour.toLocaleString()}/hs</span>
+               </button>
+             ))}
+          </div>
 
-          <h2 className={styles.panelTitle}>2. Elegí sala y horario</h2>
-          {loading ? (
-            <p>Cargando disponibilidad...</p>
-          ) : (
-            rooms.map(room => (
-              <div key={room.id} className={styles.roomCard}>
-                <div className={styles.roomHeader}>
-                  <span className={styles.roomName}>{room.name}</span>
-                  <span className={styles.roomPrice}>${room.pricePerHour.toLocaleString()}/hs</span>
-                </div>
-                
+          {selectedRoom && (
+            <>
+              <h2 className={styles.panelTitle} style={{ marginTop: '30px' }}>2. Elegí la fecha</h2>
+              <input 
+                type="date" 
+                className={styles.dateInput}
+                value={date}
+                onChange={(e) => { setDate(e.target.value); setSelectedTime(null); }}
+                min={new Date().toISOString().split('T')[0]}
+              />
+            </>
+          )}
+
+          {selectedRoom && date && (
+            <>
+              <h2 className={styles.panelTitle} style={{ marginTop: '10px' }}>3. Elegí el horario</h2>
+              {loading ? (
+                <p>Cargando disponibilidad...</p>
+              ) : (
                 <div className={styles.timeGrid}>
-                  {getAvailableSlots(room).map(slot => (
+                  {getAvailableSlots(rooms.find(r => r.id === selectedRoom.id) || selectedRoom).map(slot => (
                     <button
                       key={slot.hour}
-                      className={`${styles.timeSlot} ${
-                        selectedRoom?.id === room.id && selectedTime === slot.hour ? styles.selected : ''
-                      }`}
+                      className={`${styles.timeSlot} ${selectedTime === slot.hour ? styles.selected : ''}`}
                       disabled={!slot.available}
-                      onClick={() => {
-                        setSelectedRoom(room);
-                        setSelectedTime(slot.hour);
-                      }}
+                      onClick={() => setSelectedTime(slot.hour)}
                     >
                       {slot.hour}:00
                     </button>
                   ))}
                 </div>
-              </div>
-            ))
+              )}
+            </>
           )}
         </div>
 
         {/* Right Column: Checkout Form */}
         <div className={styles.panel}>
-          <h2 className={styles.panelTitle}>3. Confirmar Reserva</h2>
+          <h2 className={styles.panelTitle}>4. Confirmar Reserva</h2>
           
+          <div style={{ backgroundColor: 'rgba(255, 152, 0, 0.1)', borderLeft: '4px solid #ff9800', padding: '15px', borderRadius: '4px', marginBottom: '20px' }}>
+            <p style={{ margin: 0, fontSize: '0.9rem', color: '#ffb74d' }}>
+              <strong>⚠️ Aviso importante:</strong> Por cuestiones de espacio y comodidad, no aceptamos más de 6 integrantes por banda. Mínimo de reserva: 2 horas.
+            </p>
+          </div>
+
           {!selectedRoom || selectedTime === null ? (
-            <p style={{ color: 'var(--text-secondary)' }}>Seleccioná una sala y un horario para continuar.</p>
+            <p style={{ color: 'var(--text-secondary)' }}>Completá los pasos 1, 2 y 3 para continuar.</p>
           ) : (
             <>
               <div className={styles.summary}>
@@ -171,7 +185,6 @@ export default function ReservarPage() {
                     onChange={(e) => setDuration(Number(e.target.value))}
                     style={{ background: 'transparent', color: 'inherit', border: 'none', outline: 'none', fontWeight: 'bold' }}
                   >
-                    <option value={1} style={{color: '#000'}}>1 hora</option>
                     <option value={2} style={{color: '#000'}}>2 horas</option>
                     <option value={3} style={{color: '#000'}}>3 horas</option>
                     <option value={4} style={{color: '#000'}}>4 horas</option>

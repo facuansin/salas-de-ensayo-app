@@ -61,6 +61,42 @@
   margin-bottom: 15px;
 }
 
+.roomSelectGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.roomBtn {
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  transition: all 0.2s ease;
+}
+
+.roomBtn:hover {
+  border-color: var(--text-secondary);
+}
+
+.selectedRoomBtn {
+  background-color: rgba(229, 57, 53, 0.1);
+  border: 1px solid var(--accent-color);
+  color: var(--text-primary);
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  box-shadow: 0 0 10px rgba(229, 57, 53, 0.2);
+}
+
 .roomName {
   font-size: 1.2rem;
   font-weight: bold;
