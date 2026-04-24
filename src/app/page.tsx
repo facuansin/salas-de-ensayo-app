@@ -84,22 +84,6 @@ export default function Home() {
                 <MapPin color="var(--accent-color)" size={24} />
                 <span style={{ fontSize: '1.1rem' }}>Calle 64 N° 1158, La Plata, Buenos Aires</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '2rem' }}>
-                <Phone color="var(--accent-color)" size={24} />
-                <span style={{ fontSize: '1.1rem' }}>+54 9 221 558-8276</span>
-              </div>
-
-              <div className={styles.socials}>
-                <a href="#" className={styles.socialBtn} aria-label="Instagram">
-                  <MessageCircle size={24} />
-                </a>
-                <a href="#" className={styles.socialBtn} aria-label="WhatsApp">
-                  <Phone size={24} />
-                </a>
-                <a href="#" className={styles.socialBtn} aria-label="Facebook">
-                  <Globe size={24} />
-                </a>
-              </div>
             </div>
 
             <div className={styles.map}>

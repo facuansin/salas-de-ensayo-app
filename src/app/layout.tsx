@@ -7,6 +7,8 @@ export const metadata: Metadata = {
   description: "Ensayá con el mejor equipamiento en nuestras salas de ensayo profesional. Reservá online tu turno.",
 };
 
+import Footer from "@/components/Footer";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -19,6 +21,7 @@ export default function RootLayout({
         <main style={{ paddingTop: '80px', minHeight: 'calc(100vh - 80px)' }}>
           {children}
         </main>
+        <Footer />
       </body>
     </html>
   );
