@@ -1,10 +1,11 @@
 import Link from 'next/link';
-import { Phone, Mail, Globe, MessageCircle } from 'lucide-react';
+import { Phone, Mail } from 'lucide-react';
+import { FaInstagram, FaFacebook } from 'react-icons/fa';
 import styles from './Footer.module.css';
 
 export default function Footer() {
   return (
-    <footer className={styles.footer}>
+    <footer id="contacto" className={styles.footer}>
       <div className="container">
         <div className={styles.footerContent}>
           <div className={styles.brand}>
@@ -42,7 +43,7 @@ export default function Footer() {
                 className={styles.socialBtn}
                 aria-label="Instagram"
               >
-                <MessageCircle size={24} />
+                <FaInstagram size={24} />
               </a>
               <a 
                 href="https://www.facebook.com/PlanetaRockSalasDeEnsayo/" 
@@ -51,7 +52,7 @@ export default function Footer() {
                 className={styles.socialBtn}
                 aria-label="Facebook"
               >
-                <Globe size={24} />
+                <FaFacebook size={24} />
               </a>
             </div>
           </div>

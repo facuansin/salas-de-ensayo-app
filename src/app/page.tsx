@@ -71,7 +71,7 @@ export default function Home() {
       </section>
 
       {/* Info & Location Section */}
-      <section id="contacto" className={`${styles.section} ${styles.darkBg}`}>
+      <section id="direccion" className={`${styles.section} ${styles.darkBg}`}>
         <div className="container">
           <div className={styles.infoGrid}>
             <div>
