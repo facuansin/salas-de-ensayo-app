@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import { Phone, Mail } from 'lucide-react';
-import { FaInstagram, FaFacebook } from 'react-icons/fa';
+import { Mail } from 'lucide-react';
+import { FaInstagram, FaFacebook, FaWhatsapp } from 'react-icons/fa';
 import styles from './Footer.module.css';
 
 export default function Footer() {
@@ -20,7 +20,7 @@ export default function Footer() {
             <ul className={styles.contactList}>
               <li>
                 <a href="https://wa.me/5492215588276" target="_blank" rel="noreferrer" className={styles.contactLink}>
-                  <Phone size={20} />
+                  <FaWhatsapp size={20} />
                   <span>+54 9 221 558-8276</span>
                 </a>
               </li>

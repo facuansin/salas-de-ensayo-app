@@ -82,14 +82,14 @@ export default function Home() {
               
               <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '1.5rem' }}>
                 <MapPin color="var(--accent-color)" size={24} />
-                <span style={{ fontSize: '1.1rem' }}>Calle 64 N° 1158, La Plata, Buenos Aires</span>
+                <span style={{ fontSize: '1.1rem' }}>Calle 64 entre 15 y 16 N° 1158, La Plata, Buenos Aires.</span>
               </div>
             </div>
 
             <div className={styles.map}>
               {/* Embed Google Maps */}
               <iframe 
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3271.748721666978!2d-57.9427181!3d-34.9120197!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95a2e66d034446c7%3A0xc3fbfb0b30a515f4!2sC.%2064%201017%2C%20B1904CPK%20La%20Plata%2C%20Provincia%20de%20Buenos%20Aires!5e0!3m2!1ses-419!2sar!4v1682348574760!5m2!1ses-419!2sar" 
+                src="https://www.google.com/maps?q=Calle+64+1158,+La+Plata,+Buenos+Aires&output=embed" 
                 width="100%" 
                 height="100%" 
                 style={{ border: 0 }} 
