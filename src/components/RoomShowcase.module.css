@@ -1,0 +1,88 @@
+.showcaseContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 6rem;
+  width: 100%;
+}
+
+.roomRow {
+  display: flex;
+  align-items: center;
+  gap: 4rem;
+  padding: 2rem;
+  background-color: var(--bg-tertiary);
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.rowEven {
+  flex-direction: row;
+}
+
+.rowOdd {
+  flex-direction: row-reverse;
+}
+
+.carouselSection {
+  flex: 1;
+  min-width: 0; /* Prevents flexbox overflow */
+}
+
+.infoSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.roomName {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  color: #fff;
+  letter-spacing: -0.5px;
+}
+
+.roomDescription {
+  color: var(--text-secondary);
+  font-size: 1.15rem;
+  line-height: 1.7;
+  margin-bottom: 2rem;
+}
+
+.featureList {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.featureItem {
+  color: #e2e8f0;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.bullet {
+  color: var(--accent-color);
+  margin-right: 10px;
+  font-size: 1.2rem;
+}
+
+@media (max-width: 992px) {
+  .roomRow, .rowEven, .rowOdd {
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .carouselSection, .infoSection {
+    width: 100%;
+  }
+  
+  .featureList {
+    grid-template-columns: 1fr;
+  }
+}

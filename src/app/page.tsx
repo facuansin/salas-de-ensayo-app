@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import styles from './page.module.css';
 import { Mic2, Ampersand, MapPin, Globe, MessageCircle, Phone, CalendarDays, Wind, Coffee, Bike } from 'lucide-react';
-import RoomCarousel from '@/components/RoomCarousel';
+import RoomShowcase from '@/components/RoomShowcase';
 
 export default function Home() {
   return (
@@ -33,10 +33,10 @@ export default function Home() {
       <section id="salas" className={`${styles.section} ${styles.darkBg}`}>
         <div className="container">
           <h2 className="section-title">Nuestras Salas</h2>
-          <p style={{ textAlign: 'center', color: 'var(--text-secondary)', marginBottom: '3rem', fontSize: '1.2rem' }}>
+          <p style={{ textAlign: 'center', color: 'var(--text-secondary)', marginBottom: '4rem', fontSize: '1.2rem' }}>
             Descubrí los espacios diseñados específicamente para potenciar tu creatividad.
           </p>
-          <RoomCarousel />
+          <RoomShowcase />
         </div>
       </section>
 
