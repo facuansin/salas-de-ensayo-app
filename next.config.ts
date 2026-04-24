@@ -1,10 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  experimental: {
-    outputFileTracingIncludes: {
-      '/api/**/*': ['./prisma/dev.db', './dev.db', './prisma/schema.prisma'],
-    },
+  outputFileTracingIncludes: {
+    '/api/**/*': ['./prisma/dev.db', './dev.db', './prisma/schema.prisma'],
   },
 };
 
