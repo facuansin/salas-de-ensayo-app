@@ -24,8 +24,8 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(booking);
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
-    return NextResponse.json({ error: 'Failed to create booking' }, { status: 500 });
+    return NextResponse.json({ error: error?.message || 'Failed to create booking', details: error?.stack || error }, { status: 500 });
   }
 }

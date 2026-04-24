@@ -27,8 +27,8 @@ export async function GET(request: Request) {
     });
 
     return NextResponse.json(rooms);
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
-    return NextResponse.json({ error: 'Failed to fetch rooms' }, { status: 500 });
+    return NextResponse.json({ error: error?.message || 'Failed to fetch rooms', details: error?.stack || error }, { status: 500 });
   }
 }
