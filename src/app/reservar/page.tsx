@@ -32,9 +32,16 @@ export default function ReservarPage() {
     try {
       const res = await fetch(`/api/rooms?date=${date}`);
       const data = await res.json();
-      setRooms(data);
+      if (Array.isArray(data)) {
+        setRooms(data);
+      } else {
+        console.error("Error from API:", data);
+        alert(`Error del servidor: ${data.error || 'No se pudieron cargar las salas'}`);
+        setRooms([]);
+      }
     } catch (err) {
       console.error(err);
+      setRooms([]);
     }
     setLoading(false);
   };
