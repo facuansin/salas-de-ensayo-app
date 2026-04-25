@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Calendar from '@/components/Calendar';
 import styles from './page.module.css';
 
 type Room = {
@@ -118,40 +119,36 @@ export default function ReservarPage() {
                </button>
              ))}
           </div>
-
           {selectedRoom && (
-            <>
-              <h2 className={styles.panelTitle} style={{ marginTop: '30px' }}>2. Elegí la fecha</h2>
-              <input 
-                type="date" 
-                className={styles.dateInput}
-                value={date}
-                onChange={(e) => { setDate(e.target.value); setSelectedTime(null); }}
-                min={new Date().toISOString().split('T')[0]}
-              />
-            </>
-          )}
-
-          {selectedRoom && date && (
-            <>
-              <h2 className={styles.panelTitle} style={{ marginTop: '10px' }}>3. Elegí el horario</h2>
-              {loading ? (
-                <p>Cargando disponibilidad...</p>
-              ) : (
-                <div className={styles.timeGrid}>
-                  {getAvailableSlots(rooms.find(r => r.id === selectedRoom.id) || selectedRoom).map(slot => (
-                    <button
-                      key={slot.hour}
-                      className={`${styles.timeSlot} ${selectedTime === slot.hour ? styles.selected : ''}`}
-                      disabled={!slot.available}
-                      onClick={() => setSelectedTime(slot.hour)}
-                    >
-                      {slot.hour}:00
-                    </button>
-                  ))}
+            <div style={{ marginTop: '30px' }}>
+              <h2 className={styles.panelTitle}>2. Elegí fecha y horario</h2>
+              <div style={{ display: 'flex', gap: '30px', flexWrap: 'wrap' }}>
+                <div style={{ flex: '1 1 300px' }}>
+                  <Calendar 
+                    selectedDate={date} 
+                    onDateSelect={(d) => { setDate(d); setSelectedTime(null); }} 
+                  />
                 </div>
-              )}
-            </>
+                <div style={{ flex: '1 1 200px' }}>
+                  {loading ? (
+                    <p>Cargando disponibilidad...</p>
+                  ) : (
+                    <div className={styles.timeGrid}>
+                      {getAvailableSlots(rooms.find(r => r.id === selectedRoom.id) || selectedRoom).map(slot => (
+                        <button
+                          key={slot.hour}
+                          className={`${styles.timeSlot} ${selectedTime === slot.hour ? styles.selected : ''}`}
+                          disabled={!slot.available}
+                          onClick={() => setSelectedTime(slot.hour)}
+                        >
+                          {slot.hour}:00
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           )}
         </div>
 
