@@ -25,6 +25,13 @@ export default function ReservarPage() {
 
   useEffect(() => {
     fetchRooms();
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('status') === 'approved') {
+        alert('🎉 ¡Pago exitoso! Tu seña fue abonada y tu reserva está confirmada.');
+        window.history.replaceState(null, '', '/reservar');
+      }
+    }
   }, [date]);
 
   const fetchRooms = async () => {
@@ -94,15 +101,22 @@ export default function ReservarPage() {
       });
 
       if (res.ok) {
-        alert('¡Reserva confirmada con éxito! (En una versión final te redirigiría a MercadoPago)');
-        fetchRooms();
-        setSelectedRoom(null);
-        setSelectedTime(null);
+        const data = await res.json();
+        if (data.init_point) {
+          window.location.href = data.init_point;
+        } else {
+          alert('¡Reserva creada!');
+          fetchRooms();
+          setSelectedRoom(null);
+          setSelectedTime(null);
+          setCustomerInfo({ name: '', email: '', phone: '' });
+        }
       } else {
-        alert('Hubo un error al reservar.');
+        alert('Error al procesar la reserva.');
       }
     } catch (err) {
-      alert('Error de red.');
+      console.error(err);
+      alert('Error de conexión.');
     }
   };
 
