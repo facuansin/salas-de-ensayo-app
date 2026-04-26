@@ -112,7 +112,8 @@ export default function ReservarPage() {
           setCustomerInfo({ name: '', email: '', phone: '' });
         }
       } else {
-        alert('Error al procesar la reserva.');
+        const errData = await res.json();
+        alert(`Error al procesar la reserva: ${errData.error} | Detalles: ${JSON.stringify(errData.details)}`);
       }
     } catch (err) {
       console.error(err);

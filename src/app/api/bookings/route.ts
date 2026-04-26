@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     const preference = new Preference(client);
 
     // Calculate 50% down payment
-    const senaAmount = totalPrice * 0.5;
+    const senaAmount = Math.round(totalPrice * 0.5);
 
     // The base URL for redirects (production or local)
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://salas-de-ensayo-app.vercel.app';
@@ -65,7 +65,12 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ init_point: result.init_point });
   } catch (error: any) {
-    console.error(error);
-    return NextResponse.json({ error: error?.message || 'Failed to create booking', details: error?.stack || error }, { status: 500 });
+    console.error('MercadoPago / Booking Error:', error);
+    // If MercadoPago threw a specific API error, it's usually inside error.cause or error.response
+    const mpDetails = error.cause || error.response || error;
+    return NextResponse.json({ 
+      error: error?.message || 'Failed to create booking', 
+      details: mpDetails 
+    }, { status: 500 });
   }
 }
