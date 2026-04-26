@@ -14,6 +14,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   const [blockForm, setBlockForm] = useState({ roomId: '', date: '', startTime: 10, duration: 1, reason: '' });
+  const [editingBookingId, setEditingBookingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -59,6 +60,26 @@ export default function AdminDashboard() {
       });
       fetchData();
     } catch (err) { alert('Error al cancelar'); }
+  };
+
+  const saveEdit = async (b: any) => {
+    const newDate = (document.getElementById(`edit-date-${b.id}`) as HTMLInputElement).value;
+    const newStart = Number((document.getElementById(`edit-start-${b.id}`) as HTMLSelectElement).value);
+    const newDur = Number((document.getElementById(`edit-dur-${b.id}`) as HTMLSelectElement).value);
+    
+    const roomInfo = rooms.find(r => r.name === b.room.name);
+    const pricePerHour = roomInfo ? roomInfo.pricePerHour : (b.totalPrice / b.duration);
+    const newTotal = pricePerHour * newDur;
+
+    try {
+      await fetch(`/api/admin/bookings/${b.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date: newDate, startTime: newStart, duration: newDur, totalPrice: newTotal })
+      });
+      setEditingBookingId(null);
+      fetchData();
+    } catch (err) { alert('Error al guardar edición'); }
   };
 
   const updateRoomPrice = async (id: string, newPrice: number) => {
@@ -141,14 +162,42 @@ export default function AdminDashboard() {
                       <tr><td colSpan={6} style={{textAlign: 'center'}}>No hay reservas</td></tr>
                     ) : bookings.map(b => (
                       <tr key={b.id}>
-                        <td>{b.date.split('-').reverse().join('/')} a las {b.startTime}:00hs ({b.duration}h)</td>
+                        <td>
+                          {editingBookingId === b.id ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                              <input type="date" className={styles.input} defaultValue={b.date} id={`edit-date-${b.id}`} />
+                              <div style={{ display: 'flex', gap: '5px' }}>
+                                <select className={styles.select} id={`edit-start-${b.id}`} defaultValue={b.startTime}>
+                                  {Array.from({length: 14}, (_, i) => i + 10).map(h => <option key={h} value={h}>{h}:00</option>)}
+                                </select>
+                                <select className={styles.select} id={`edit-dur-${b.id}`} defaultValue={b.duration}>
+                                  {[1,2,3,4,5,6,8,10,12].map(h => <option key={h} value={h}>{h}h</option>)}
+                                </select>
+                              </div>
+                            </div>
+                          ) : (
+                            `${b.date.split('-').reverse().join('/')} a las ${b.startTime}:00hs (${b.duration}h)`
+                          )}
+                        </td>
                         <td><strong>{b.room.name}</strong></td>
                         <td>{b.customerName} <br/><span style={{fontSize: '0.85rem', color: '#888'}}>{b.customerPhone}</span></td>
                         <td>${b.totalPrice.toLocaleString()}</td>
                         <td><span className={`${styles.status} ${styles[b.status.toLowerCase()]}`}>{b.status}</span></td>
                         <td>
-                          {b.status !== 'CANCELLED' && (
-                            <button onClick={() => cancelBooking(b.id)} className={styles.actionBtn}>Cancelar</button>
+                          {editingBookingId === b.id ? (
+                            <div style={{ display: 'flex', gap: '5px' }}>
+                              <button onClick={() => saveEdit(b)} className={styles.actionBtn}>Guardar</button>
+                              <button onClick={() => setEditingBookingId(null)} className={styles.actionBtn} style={{borderColor: '#888', color: '#888'}}>X</button>
+                            </div>
+                          ) : (
+                            <div style={{ display: 'flex', gap: '5px' }}>
+                              {b.status !== 'CANCELLED' && (
+                                <>
+                                  <button onClick={() => setEditingBookingId(b.id)} className={styles.actionBtn} style={{borderColor: '#4caf50', color: '#4caf50'}}>Editar</button>
+                                  <button onClick={() => cancelBooking(b.id)} className={styles.actionBtn}>Cancelar</button>
+                                </>
+                              )}
+                            </div>
                           )}
                         </td>
                       </tr>
