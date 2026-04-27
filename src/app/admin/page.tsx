@@ -112,6 +112,26 @@ export default function AdminDashboard() {
 
   const handleManualCreate = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate availability
+    const overlapping = bookings.some(b => 
+      b.roomId === manualForm.roomId && 
+      b.date === manualForm.date && 
+      b.status !== 'CANCELLED' &&
+      manualForm.startTime < b.startTime + b.duration && 
+      manualForm.startTime + manualForm.duration > b.startTime
+    );
+    const overlappingBlock = blockedTimes.some(bl => 
+      bl.roomId === manualForm.roomId && 
+      bl.date === manualForm.date && 
+      manualForm.startTime < bl.startTime + bl.duration && 
+      manualForm.startTime + manualForm.duration > bl.startTime
+    );
+
+    if (overlapping || overlappingBlock) {
+      return alert('El horario seleccionado no está disponible (se superpone con otro turno o bloqueo).');
+    }
+
     const roomInfo = rooms.find(r => r.id === manualForm.roomId);
     if (!roomInfo) return;
     try {
