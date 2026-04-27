@@ -1,8 +1,7 @@
-'use client';
-
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './page.module.css';
+import Calendar from '@/components/Calendar';
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -15,6 +14,11 @@ export default function AdminDashboard() {
 
   const [blockForm, setBlockForm] = useState({ roomId: '', date: '', startTime: 10, duration: 1, reason: '' });
   const [editingBookingId, setEditingBookingId] = useState<string | null>(null);
+
+  const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
+  const [selectedCalendarDate, setSelectedCalendarDate] = useState<string>(
+    new Date().toISOString().split('T')[0]
+  );
 
   useEffect(() => {
     fetchData();
@@ -144,67 +148,138 @@ export default function AdminDashboard() {
         <>
           {activeTab === 'reservas' && (
             <div className={styles.panel}>
-              <h2 className={styles.panelTitle}>Agenda de Reservas</h2>
-              <div className={styles.tableContainer}>
-                <table className={styles.table}>
-                  <thead>
-                    <tr>
-                      <th>Fecha y Hora</th>
-                      <th>Sala</th>
-                      <th>Cliente</th>
-                      <th>Precio</th>
-                      <th>Estado</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {bookings.length === 0 ? (
-                      <tr><td colSpan={6} style={{textAlign: 'center'}}>No hay reservas</td></tr>
-                    ) : bookings.map(b => (
-                      <tr key={b.id}>
-                        <td>
-                          {editingBookingId === b.id ? (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                              <input type="date" className={styles.input} defaultValue={b.date} id={`edit-date-${b.id}`} />
-                              <div style={{ display: 'flex', gap: '5px' }}>
-                                <select className={styles.select} id={`edit-start-${b.id}`} defaultValue={b.startTime}>
-                                  {Array.from({length: 14}, (_, i) => i + 10).map(h => <option key={h} value={h}>{h}:00</option>)}
-                                </select>
-                                <select className={styles.select} id={`edit-dur-${b.id}`} defaultValue={b.duration}>
-                                  {[1,2,3,4,5,6,8,10,12].map(h => <option key={h} value={h}>{h}h</option>)}
-                                </select>
-                              </div>
-                            </div>
-                          ) : (
-                            `${b.date.split('-').reverse().join('/')} a las ${b.startTime}:00hs (${b.duration}h)`
-                          )}
-                        </td>
-                        <td><strong>{b.room.name}</strong></td>
-                        <td>{b.customerName} <br/><span style={{fontSize: '0.85rem', color: '#888'}}>{b.customerPhone}</span></td>
-                        <td>${b.totalPrice.toLocaleString()}</td>
-                        <td><span className={`${styles.status} ${styles[b.status.toLowerCase()]}`}>{b.status}</span></td>
-                        <td>
-                          {editingBookingId === b.id ? (
-                            <div style={{ display: 'flex', gap: '5px' }}>
-                              <button onClick={() => saveEdit(b)} className={styles.actionBtn}>Guardar</button>
-                              <button onClick={() => setEditingBookingId(null)} className={styles.actionBtn} style={{borderColor: '#888', color: '#888'}}>X</button>
-                            </div>
-                          ) : (
-                            <div style={{ display: 'flex', gap: '5px' }}>
-                              {b.status !== 'CANCELLED' && (
-                                <>
-                                  <button onClick={() => setEditingBookingId(b.id)} className={styles.actionBtn} style={{borderColor: '#4caf50', color: '#4caf50'}}>Editar</button>
-                                  <button onClick={() => cancelBooking(b.id)} className={styles.actionBtn}>Cancelar</button>
-                                </>
-                              )}
-                            </div>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <h2 className={styles.panelTitle} style={{ margin: 0 }}>Agenda de Reservas</h2>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button onClick={() => setViewMode('list')} className={styles.actionBtn} style={{ backgroundColor: viewMode === 'list' ? 'var(--accent-color)' : 'transparent', color: viewMode === 'list' ? '#fff' : 'var(--accent-color)' }}>Vista de Lista</button>
+                  <button onClick={() => setViewMode('calendar')} className={styles.actionBtn} style={{ backgroundColor: viewMode === 'calendar' ? 'var(--accent-color)' : 'transparent', color: viewMode === 'calendar' ? '#fff' : 'var(--accent-color)' }}>Vista Calendario</button>
+                </div>
               </div>
+
+              {viewMode === 'list' ? (
+                <div className={styles.tableContainer}>
+                  <table className={styles.table}>
+                    <thead>
+                      <tr>
+                        <th>Fecha y Hora</th>
+                        <th>Sala</th>
+                        <th>Cliente</th>
+                        <th>Precio</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {bookings.length === 0 ? (
+                        <tr><td colSpan={6} style={{textAlign: 'center'}}>No hay reservas</td></tr>
+                      ) : bookings.map(b => (
+                        <tr key={b.id}>
+                          <td>
+                            {editingBookingId === b.id ? (
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                <input type="date" className={styles.input} defaultValue={b.date} id={`edit-date-${b.id}`} />
+                                <div style={{ display: 'flex', gap: '5px' }}>
+                                  <select className={styles.select} id={`edit-start-${b.id}`} defaultValue={b.startTime}>
+                                    {Array.from({length: 14}, (_, i) => i + 10).map(h => <option key={h} value={h}>{h}:00</option>)}
+                                  </select>
+                                  <select className={styles.select} id={`edit-dur-${b.id}`} defaultValue={b.duration}>
+                                    {[1,2,3,4,5,6,8,10,12].map(h => <option key={h} value={h}>{h}h</option>)}
+                                  </select>
+                                </div>
+                              </div>
+                            ) : (
+                              <>
+                                {b.date.split('-').reverse().join('/')} a las {b.startTime}:00hs ({b.duration}h)
+                                <br />
+                                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                                  Reservado el: {new Date(b.createdAt).toLocaleDateString('es-AR')} {new Date(b.createdAt).toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit'})}
+                                </span>
+                              </>
+                            )}
+                          </td>
+                          <td><strong>{b.room.name}</strong></td>
+                          <td>{b.customerName} <br/><span style={{fontSize: '0.85rem', color: '#888'}}>{b.customerPhone}</span></td>
+                          <td>${b.totalPrice.toLocaleString()}</td>
+                          <td><span className={`${styles.status} ${styles[b.status.toLowerCase()]}`}>{b.status}</span></td>
+                          <td>
+                            {editingBookingId === b.id ? (
+                              <div style={{ display: 'flex', gap: '5px' }}>
+                                <button onClick={() => saveEdit(b)} className={styles.actionBtn}>Guardar</button>
+                                <button onClick={() => setEditingBookingId(null)} className={styles.actionBtn} style={{borderColor: '#888', color: '#888'}}>X</button>
+                              </div>
+                            ) : (
+                              <div style={{ display: 'flex', gap: '5px' }}>
+                                {b.status !== 'CANCELLED' && (
+                                  <>
+                                    <button onClick={() => setEditingBookingId(b.id)} className={styles.actionBtn} style={{borderColor: '#4caf50', color: '#4caf50'}}>Editar</button>
+                                    <button onClick={() => cancelBooking(b.id)} className={styles.actionBtn}>Cancelar</button>
+                                  </>
+                                )}
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', gap: '20px', flexDirection: 'row', flexWrap: 'wrap' }}>
+                  <div style={{ flex: '1', minWidth: '300px', maxWidth: '350px' }}>
+                    <Calendar 
+                      selectedDate={selectedCalendarDate} 
+                      onDateSelect={setSelectedCalendarDate} 
+                    />
+                  </div>
+                  <div style={{ flex: '2', minWidth: '300px', backgroundColor: 'var(--bg-tertiary)', borderRadius: '8px', padding: '20px' }}>
+                    <h3 style={{ marginBottom: '20px', color: 'var(--text-primary)' }}>
+                      Turnos del {selectedCalendarDate.split('-').reverse().join('/')}
+                    </h3>
+                    <div style={{ display: 'flex', gap: '15px', overflowX: 'auto' }}>
+                      {rooms.map(room => (
+                        <div key={room.id} style={{ flex: 1, minWidth: '150px' }}>
+                          <h4 style={{ textAlign: 'center', marginBottom: '10px', color: 'var(--accent-color)' }}>{room.name}</h4>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                            {Array.from({length: 14}, (_, i) => i + 10).map(hour => {
+                              const booking = bookings.find(b => b.room.name === room.name && b.date === selectedCalendarDate && hour >= b.startTime && hour < b.startTime + b.duration && b.status !== 'CANCELLED');
+                              const block = blockedTimes.find(bl => bl.room.name === room.name && bl.date === selectedCalendarDate && hour >= bl.startTime && hour < bl.startTime + bl.duration);
+                              
+                              let bgColor = 'var(--bg-secondary)';
+                              let text = 'Libre';
+                              let color = 'var(--text-secondary)';
+
+                              if (booking) {
+                                bgColor = booking.status === 'PENDING' ? 'rgba(255, 152, 0, 0.2)' : 'rgba(76, 175, 80, 0.2)';
+                                color = booking.status === 'PENDING' ? '#ff9800' : '#4caf50';
+                                text = booking.customerName;
+                              } else if (block) {
+                                bgColor = 'rgba(244, 67, 54, 0.2)';
+                                color = '#f44336';
+                                text = block.reason || 'Bloqueado';
+                              }
+
+                              return (
+                                <div key={hour} style={{ 
+                                  padding: '10px', 
+                                  backgroundColor: bgColor, 
+                                  color: color, 
+                                  borderRadius: '4px',
+                                  fontSize: '0.85rem',
+                                  display: 'flex',
+                                  flexDirection: 'column'
+                                }}>
+                                  <strong>{hour}:00</strong>
+                                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{text}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
