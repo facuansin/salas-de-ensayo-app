@@ -28,6 +28,7 @@ model Booking {
   date          String   // Format: YYYY-MM-DD
   startTime     Int      // Hour of day (0-23)
   duration      Int      // In hours
+  bandMembers   Int      @default(1) // Number of members (1-6)
   totalPrice    Float
   status        String   @default("PENDING") // PENDING, CONFIRMED, CANCELLED
   paymentId     String?  // MercadoPago preference/payment ID

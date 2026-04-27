@@ -23,7 +23,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { roomId, date, startTime, duration, customerName, customerPhone, totalPrice } = body;
+    const { roomId, date, startTime, duration, bandMembers, customerName, customerPhone, totalPrice } = body;
     
     const booking = await prisma.booking.create({
       data: {
@@ -31,6 +31,7 @@ export async function POST(request: Request) {
         date,
         startTime,
         duration,
+        bandMembers: bandMembers ? Number(bandMembers) : 1,
         customerName,
         customerPhone,
         totalPrice,

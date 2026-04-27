@@ -5,7 +5,7 @@ import { MercadoPagoConfig, Preference } from 'mercadopago';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { roomId, customerName, customerEmail, customerPhone, date, startTime, duration, totalPrice } = body;
+    const { roomId, customerName, customerEmail, customerPhone, date, startTime, duration, bandMembers, totalPrice } = body;
 
     // First, save the booking as PENDING in our DB
     const booking = await prisma.booking.create({
@@ -17,6 +17,7 @@ export async function POST(request: Request) {
         date,
         startTime,
         duration,
+        bandMembers: bandMembers ? Number(bandMembers) : 1,
         totalPrice,
         status: 'PENDING'
       }

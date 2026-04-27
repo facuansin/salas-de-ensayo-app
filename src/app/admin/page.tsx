@@ -21,10 +21,10 @@ export default function AdminDashboard() {
   );
 
   const [showManualModal, setShowManualModal] = useState(false);
-  const [manualForm, setManualForm] = useState({ roomId: '', date: '', startTime: 10, duration: 2, customerName: '', customerPhone: '' });
+  const [manualForm, setManualForm] = useState({ roomId: '', date: '', startTime: 10, duration: 2, bandMembers: 1, customerName: '', customerPhone: '' });
 
   const [selectedBookingDetails, setSelectedBookingDetails] = useState<any>(null);
-  const [editDetailsForm, setEditDetailsForm] = useState({ customerName: '', customerPhone: '', date: '', startTime: 10, duration: 2, roomId: '', status: '' });
+  const [editDetailsForm, setEditDetailsForm] = useState({ customerName: '', customerPhone: '', date: '', startTime: 10, duration: 2, roomId: '', status: '', bandMembers: 1 });
 
   const openEditModal = (booking: any) => {
     setSelectedBookingDetails(booking);
@@ -35,7 +35,8 @@ export default function AdminDashboard() {
       startTime: booking.startTime,
       duration: booking.duration,
       roomId: booking.roomId,
-      status: booking.status
+      status: booking.status,
+      bandMembers: booking.bandMembers || 1
     });
   };
 
@@ -285,7 +286,11 @@ export default function AdminDashboard() {
                             </span>
                           </td>
                           <td><strong>{b.room.name}</strong></td>
-                          <td>{b.customerName} <br/><span style={{fontSize: '0.85rem', color: '#888'}}>{b.customerPhone}</span></td>
+                          <td>
+                            {b.customerName} 
+                            <br/><span style={{fontSize: '0.85rem', color: '#888'}}>{b.customerPhone}</span>
+                            <br/><span style={{fontSize: '0.85rem', color: 'var(--accent-color)'}}>{b.bandMembers || 1} integrante(s)</span>
+                          </td>
                           <td>${b.totalPrice.toLocaleString()}</td>
                           <td><span className={`${styles.status} ${styles[b.status.toLowerCase()]}`}>{b.status}</span></td>
                           <td>
@@ -487,6 +492,11 @@ export default function AdminDashboard() {
                   {[1,2,3,4,5,6,8,10,12].map(h => <option key={h} value={h}>{h}h</option>)}
                 </select>
               </div>
+              <select required className={styles.select} value={manualForm.bandMembers} onChange={e => setManualForm({...manualForm, bandMembers: Number(e.target.value)})}>
+                {[1,2,3,4,5,6].map(num => (
+                  <option key={num} value={num}>{num} integrante{num > 1 ? 's' : ''}</option>
+                ))}
+              </select>
               <input required type="text" placeholder="Nombre de la banda / cliente" className={styles.input} value={manualForm.customerName} onChange={e => setManualForm({...manualForm, customerName: e.target.value})} />
               <input required type="tel" placeholder="WhatsApp" className={styles.input} value={manualForm.customerPhone} onChange={e => setManualForm({...manualForm, customerPhone: e.target.value})} />
               <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
@@ -539,6 +549,14 @@ export default function AdminDashboard() {
                   <label>Duración:</label>
                   <select className={styles.select} value={editDetailsForm.duration} onChange={e => setEditDetailsForm({...editDetailsForm, duration: Number(e.target.value)})}>
                     {[1,2,3,4,5,6,8,10,12].map(h => <option key={h} value={h}>{h}h</option>)}
+                  </select>
+                </div>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                  <label>Integrantes:</label>
+                  <select className={styles.select} value={editDetailsForm.bandMembers} onChange={e => setEditDetailsForm({...editDetailsForm, bandMembers: Number(e.target.value)})}>
+                    {[1,2,3,4,5,6].map(num => (
+                      <option key={num} value={num}>{num}</option>
+                    ))}
                   </select>
                 </div>
               </div>

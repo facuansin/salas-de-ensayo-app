@@ -20,6 +20,7 @@ export default function ReservarPage() {
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [selectedTime, setSelectedTime] = useState<number | null>(null);
   const [duration, setDuration] = useState<number>(2); // Default 2 hours
+  const [bandMembers, setBandMembers] = useState<number>(1); // Default 1 member
   
   const [customerInfo, setCustomerInfo] = useState({ name: '', email: '', phone: '' });
 
@@ -96,6 +97,7 @@ export default function ReservarPage() {
           date,
           startTime: selectedTime,
           duration,
+          bandMembers,
           totalPrice: selectedRoom.pricePerHour * duration
         })
       });
@@ -202,11 +204,23 @@ export default function ReservarPage() {
                   <select 
                     value={duration}
                     onChange={(e) => setDuration(Number(e.target.value))}
-                    style={{ background: 'transparent', color: 'inherit', border: 'none', outline: 'none', fontWeight: 'bold' }}
+                    style={{ background: 'transparent', color: 'inherit', border: 'none', outline: 'none', fontWeight: 'bold', cursor: 'pointer' }}
                   >
                     <option value={2} style={{color: '#000'}}>2 horas</option>
                     <option value={3} style={{color: '#000'}}>3 horas</option>
                     <option value={4} style={{color: '#000'}}>4 horas</option>
+                  </select>
+                </div>
+                <div className={styles.summaryRow}>
+                  <span>Integrantes:</span>
+                  <select 
+                    value={bandMembers}
+                    onChange={(e) => setBandMembers(Number(e.target.value))}
+                    style={{ background: 'transparent', color: 'inherit', border: 'none', outline: 'none', fontWeight: 'bold', cursor: 'pointer' }}
+                  >
+                    {[1, 2, 3, 4, 5, 6].map(num => (
+                      <option key={num} value={num} style={{color: '#000'}}>{num} persona{num > 1 ? 's' : ''}</option>
+                    ))}
                   </select>
                 </div>
                 
