@@ -14,6 +14,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     if (body.totalPrice !== undefined) updateData.totalPrice = Number(body.totalPrice);
     if (body.customerName !== undefined) updateData.customerName = body.customerName;
     if (body.customerPhone !== undefined) updateData.customerPhone = body.customerPhone;
+    if (body.roomId !== undefined) updateData.roomId = body.roomId;
     
     const updated = await prisma.booking.update({
       where: { id: resolvedParams.id },

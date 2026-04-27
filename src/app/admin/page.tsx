@@ -24,7 +24,7 @@ export default function AdminDashboard() {
   const [manualForm, setManualForm] = useState({ roomId: '', date: '', startTime: 10, duration: 2, customerName: '', customerPhone: '' });
 
   const [selectedBookingDetails, setSelectedBookingDetails] = useState<any>(null);
-  const [editDetailsForm, setEditDetailsForm] = useState({ customerName: '', customerPhone: '', date: '', startTime: 10, duration: 2 });
+  const [editDetailsForm, setEditDetailsForm] = useState({ customerName: '', customerPhone: '', date: '', startTime: 10, duration: 2, roomId: '', status: '' });
 
   const openEditModal = (booking: any) => {
     setSelectedBookingDetails(booking);
@@ -33,7 +33,9 @@ export default function AdminDashboard() {
       customerPhone: booking.customerPhone,
       date: booking.date,
       startTime: booking.startTime,
-      duration: booking.duration
+      duration: booking.duration,
+      roomId: booking.roomId,
+      status: booking.status
     });
   };
 
@@ -128,7 +130,30 @@ export default function AdminDashboard() {
 
   const saveModalEdit = async () => {
     if (!selectedBookingDetails) return;
-    const roomInfo = rooms.find(r => r.name === selectedBookingDetails.room.name);
+
+    // Validate availability
+    const overlapping = bookings.some(b => 
+      b.id !== selectedBookingDetails.id && 
+      b.roomId === editDetailsForm.roomId && 
+      b.date === editDetailsForm.date && 
+      b.status !== 'CANCELLED' &&
+      editDetailsForm.status !== 'CANCELLED' &&
+      editDetailsForm.startTime < b.startTime + b.duration && 
+      editDetailsForm.startTime + editDetailsForm.duration > b.startTime
+    );
+    const overlappingBlock = blockedTimes.some(bl => 
+      bl.roomId === editDetailsForm.roomId && 
+      bl.date === editDetailsForm.date && 
+      editDetailsForm.status !== 'CANCELLED' &&
+      editDetailsForm.startTime < bl.startTime + bl.duration && 
+      editDetailsForm.startTime + editDetailsForm.duration > bl.startTime
+    );
+
+    if (overlapping || overlappingBlock) {
+      return alert('El horario seleccionado no está disponible (se superpone con otro turno o bloqueo).');
+    }
+
+    const roomInfo = rooms.find(r => r.id === editDetailsForm.roomId);
     const pricePerHour = roomInfo ? roomInfo.pricePerHour : (selectedBookingDetails.totalPrice / selectedBookingDetails.duration);
     const newTotal = pricePerHour * editDetailsForm.duration;
 
@@ -458,18 +483,27 @@ export default function AdminDashboard() {
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
             <h2 style={{ marginBottom: '10px' }}>Detalles de la Reserva</h2>
-            <div style={{ marginBottom: '20px', color: 'var(--text-secondary)' }}>
-              <p><strong>Sala:</strong> {selectedBookingDetails.room.name}</p>
-              <p><strong>Total:</strong> ${selectedBookingDetails.totalPrice}</p>
-              <p style={{ marginTop: '10px' }}>
-                <strong>Estado:</strong>{' '}
-                <span className={`${styles.status} ${styles[selectedBookingDetails.status.toLowerCase()]}`}>
-                  {selectedBookingDetails.status}
-                </span>
-              </p>
+            <div style={{ marginBottom: '15px', color: 'var(--text-secondary)' }}>
+              <p><strong>Precio Total Anterior:</strong> ${selectedBookingDetails.totalPrice}</p>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                  <label>Sala:</label>
+                  <select className={styles.select} value={editDetailsForm.roomId} onChange={e => setEditDetailsForm({...editDetailsForm, roomId: e.target.value})}>
+                    {rooms.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+                  </select>
+                </div>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                  <label>Estado:</label>
+                  <select className={styles.select} value={editDetailsForm.status} onChange={e => setEditDetailsForm({...editDetailsForm, status: e.target.value})}>
+                    <option value="CONFIRMED">Confirmado</option>
+                    <option value="PENDING">Pendiente</option>
+                    <option value="CANCELLED">Cancelado</option>
+                  </select>
+                </div>
+              </div>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '5px' }}>
                   <label>Fecha:</label>
