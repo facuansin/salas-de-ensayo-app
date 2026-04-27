@@ -15,7 +15,13 @@ export async function GET(request: Request) {
         bookings: {
           where: {
             date: date,
-            status: { not: 'CANCELLED' }
+            OR: [
+              { status: 'CONFIRMED' },
+              { 
+                status: 'PENDING', 
+                createdAt: { gte: new Date(Date.now() - 15 * 60 * 1000) } 
+              }
+            ]
           }
         },
         blockedTimes: {
