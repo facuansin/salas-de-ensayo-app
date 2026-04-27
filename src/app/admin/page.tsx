@@ -15,18 +15,19 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   const [blockForm, setBlockForm] = useState({ roomId: '', date: '', startTime: 10, duration: 1, reason: '' });
-  const [editingBookingId, setEditingBookingId] = useState<string | null>(null);
-
-  const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
-  const [selectedCalendarDate, setSelectedCalendarDate] = useState<string>(
-    new Date().toISOString().split('T')[0]
-  );
-
-  const [showManualModal, setShowManualModal] = useState(false);
-  const [manualForm, setManualForm] = useState({ roomId: '', date: '', startTime: 10, duration: 2, customerName: '', customerPhone: '' });
-
   const [selectedBookingDetails, setSelectedBookingDetails] = useState<any>(null);
-  const [editDetailsForm, setEditDetailsForm] = useState({ customerName: '', customerPhone: '' });
+  const [editDetailsForm, setEditDetailsForm] = useState({ customerName: '', customerPhone: '', date: '', startTime: 10, duration: 2 });
+
+  const openEditModal = (booking: any) => {
+    setSelectedBookingDetails(booking);
+    setEditDetailsForm({
+      customerName: booking.customerName,
+      customerPhone: booking.customerPhone,
+      date: booking.date,
+      startTime: booking.startTime,
+      duration: booking.duration
+    });
+  };
 
   useEffect(() => {
     fetchData();
@@ -84,25 +85,7 @@ export default function AdminDashboard() {
     } catch (err) { alert('Error al eliminar'); }
   };
 
-  const saveEdit = async (b: any) => {
-    const newDate = (document.getElementById(`edit-date-${b.id}`) as HTMLInputElement).value;
-    const newStart = Number((document.getElementById(`edit-start-${b.id}`) as HTMLSelectElement).value);
-    const newDur = Number((document.getElementById(`edit-dur-${b.id}`) as HTMLSelectElement).value);
-    
-    const roomInfo = rooms.find(r => r.name === b.room.name);
-    const pricePerHour = roomInfo ? roomInfo.pricePerHour : (b.totalPrice / b.duration);
-    const newTotal = pricePerHour * newDur;
 
-    try {
-      await fetch(`/api/admin/bookings/${b.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ date: newDate, startTime: newStart, duration: newDur, totalPrice: newTotal })
-      });
-      setEditingBookingId(null);
-      fetchData();
-    } catch (err) { alert('Error al guardar edición'); }
-  };
 
   const confirmPendingBooking = async (id: string) => {
     if (!confirm('¿Confirmar este turno manualmente?')) return;
@@ -137,11 +120,15 @@ export default function AdminDashboard() {
 
   const saveModalEdit = async () => {
     if (!selectedBookingDetails) return;
+    const roomInfo = rooms.find(r => r.name === selectedBookingDetails.room.name);
+    const pricePerHour = roomInfo ? roomInfo.pricePerHour : (selectedBookingDetails.totalPrice / selectedBookingDetails.duration);
+    const newTotal = pricePerHour * editDetailsForm.duration;
+
     try {
       await fetch(`/api/admin/bookings/${selectedBookingDetails.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editDetailsForm)
+        body: JSON.stringify({ ...editDetailsForm, totalPrice: newTotal })
       });
       setSelectedBookingDetails(null);
       fetchData();
@@ -238,50 +225,27 @@ export default function AdminDashboard() {
                       ) : bookings.map(b => (
                         <tr key={b.id}>
                           <td>
-                            {editingBookingId === b.id ? (
-                              <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                                <input type="date" className={styles.input} defaultValue={b.date} id={`edit-date-${b.id}`} />
-                                <div style={{ display: 'flex', gap: '5px' }}>
-                                  <select className={styles.select} id={`edit-start-${b.id}`} defaultValue={b.startTime}>
-                                    {Array.from({length: 14}, (_, i) => i + 10).map(h => <option key={h} value={h}>{h}:00</option>)}
-                                  </select>
-                                  <select className={styles.select} id={`edit-dur-${b.id}`} defaultValue={b.duration}>
-                                    {[1,2,3,4,5,6,8,10,12].map(h => <option key={h} value={h}>{h}h</option>)}
-                                  </select>
-                                </div>
-                              </div>
-                            ) : (
-                              <>
-                                {b.date.split('-').reverse().join('/')} a las {b.startTime}:00hs ({b.duration}h)
-                                <br />
-                                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                                  Reservado el: {new Date(b.createdAt).toLocaleDateString('es-AR')} {new Date(b.createdAt).toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit'})}
-                                </span>
-                              </>
-                            )}
+                            {b.date.split('-').reverse().join('/')} a las {b.startTime}:00hs ({b.duration}h)
+                            <br />
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                              Reservado el: {new Date(b.createdAt).toLocaleDateString('es-AR')} {new Date(b.createdAt).toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit'})}
+                            </span>
                           </td>
                           <td><strong>{b.room.name}</strong></td>
                           <td>{b.customerName} <br/><span style={{fontSize: '0.85rem', color: '#888'}}>{b.customerPhone}</span></td>
                           <td>${b.totalPrice.toLocaleString()}</td>
                           <td><span className={`${styles.status} ${styles[b.status.toLowerCase()]}`}>{b.status}</span></td>
                           <td>
-                            {editingBookingId === b.id ? (
-                              <div style={{ display: 'flex', gap: '5px' }}>
-                                <button onClick={() => saveEdit(b)} className={styles.actionBtn}>Guardar</button>
-                                <button onClick={() => setEditingBookingId(null)} className={styles.actionBtn} style={{borderColor: '#888', color: '#888'}}>X</button>
-                              </div>
-                            ) : (
-                              <div style={{ display: 'flex', gap: '5px' }}>
-                                {b.status !== 'CANCELLED' ? (
-                                  <>
-                                    <button onClick={() => setEditingBookingId(b.id)} className={styles.actionBtn} style={{borderColor: '#4caf50', color: '#4caf50'}}>Editar</button>
-                                    <button onClick={() => cancelBooking(b.id)} className={styles.actionBtn}>Cancelar</button>
-                                  </>
-                                ) : (
-                                  <button onClick={() => deleteBooking(b.id)} className={styles.actionBtn} style={{borderColor: '#f44336', color: '#f44336'}}>Eliminar</button>
-                                )}
-                              </div>
-                            )}
+                            <div style={{ display: 'flex', gap: '5px' }}>
+                              {b.status !== 'CANCELLED' ? (
+                                <>
+                                  <button onClick={() => openEditModal(b)} className={styles.actionBtn} style={{borderColor: '#4caf50', color: '#4caf50'}}>Editar</button>
+                                  <button onClick={() => cancelBooking(b.id)} className={styles.actionBtn}>Cancelar</button>
+                                </>
+                              ) : (
+                                <button onClick={() => deleteBooking(b.id)} className={styles.actionBtn} style={{borderColor: '#f44336', color: '#f44336'}}>Eliminar</button>
+                              )}
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -327,10 +291,7 @@ export default function AdminDashboard() {
                               return (
                                 <div key={hour} 
                                   onClick={() => {
-                                    if (booking) {
-                                      setSelectedBookingDetails(booking);
-                                      setEditDetailsForm({ customerName: booking.customerName, customerPhone: booking.customerPhone });
-                                    }
+                                    if (booking) openEditModal(booking);
                                   }}
                                   style={{ 
                                   padding: '10px', 
@@ -491,9 +452,8 @@ export default function AdminDashboard() {
             <h2 style={{ marginBottom: '10px' }}>Detalles de la Reserva</h2>
             <div style={{ marginBottom: '20px', color: 'var(--text-secondary)' }}>
               <p><strong>Sala:</strong> {selectedBookingDetails.room.name}</p>
-              <p><strong>Horario:</strong> {selectedBookingDetails.date.split('-').reverse().join('/')} a las {selectedBookingDetails.startTime}:00hs ({selectedBookingDetails.duration}h)</p>
               <p><strong>Total:</strong> ${selectedBookingDetails.totalPrice}</p>
-              <p>
+              <p style={{ marginTop: '10px' }}>
                 <strong>Estado:</strong>{' '}
                 <span className={`${styles.status} ${styles[selectedBookingDetails.status.toLowerCase()]}`}>
                   {selectedBookingDetails.status}
@@ -502,6 +462,25 @@ export default function AdminDashboard() {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                  <label>Fecha:</label>
+                  <input type="date" className={styles.input} value={editDetailsForm.date} onChange={e => setEditDetailsForm({...editDetailsForm, date: e.target.value})} />
+                </div>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                  <label>Hora:</label>
+                  <select className={styles.select} value={editDetailsForm.startTime} onChange={e => setEditDetailsForm({...editDetailsForm, startTime: Number(e.target.value)})}>
+                    {Array.from({length: 14}, (_, i) => i + 10).map(h => <option key={h} value={h}>{h}:00</option>)}
+                  </select>
+                </div>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                  <label>Duración:</label>
+                  <select className={styles.select} value={editDetailsForm.duration} onChange={e => setEditDetailsForm({...editDetailsForm, duration: Number(e.target.value)})}>
+                    {[1,2,3,4,5,6,8,10,12].map(h => <option key={h} value={h}>{h}h</option>)}
+                  </select>
+                </div>
+              </div>
+              
               <label>Nombre Cliente:</label>
               <input className={styles.input} value={editDetailsForm.customerName} onChange={e => setEditDetailsForm({...editDetailsForm, customerName: e.target.value})} />
               <label>WhatsApp:</label>
