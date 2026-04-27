@@ -22,6 +22,12 @@ export default function AdminDashboard() {
     new Date().toISOString().split('T')[0]
   );
 
+  const [showManualModal, setShowManualModal] = useState(false);
+  const [manualForm, setManualForm] = useState({ roomId: '', date: '', startTime: 10, duration: 2, customerName: '', customerPhone: '' });
+
+  const [selectedBookingDetails, setSelectedBookingDetails] = useState<any>(null);
+  const [editDetailsForm, setEditDetailsForm] = useState({ customerName: '', customerPhone: '' });
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -98,6 +104,50 @@ export default function AdminDashboard() {
     } catch (err) { alert('Error al guardar edición'); }
   };
 
+  const confirmPendingBooking = async (id: string) => {
+    if (!confirm('¿Confirmar este turno manualmente?')) return;
+    try {
+      await fetch(`/api/admin/bookings/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'CONFIRMED' })
+      });
+      setSelectedBookingDetails(null);
+      fetchData();
+    } catch (err) { alert('Error al confirmar'); }
+  };
+
+  const handleManualCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const roomInfo = rooms.find(r => r.id === manualForm.roomId);
+    if (!roomInfo) return;
+    try {
+      await fetch('/api/admin/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...manualForm,
+          totalPrice: roomInfo.pricePerHour * manualForm.duration
+        })
+      });
+      setShowManualModal(false);
+      fetchData();
+    } catch (err) { alert('Error al crear reserva manual'); }
+  };
+
+  const saveModalEdit = async () => {
+    if (!selectedBookingDetails) return;
+    try {
+      await fetch(`/api/admin/bookings/${selectedBookingDetails.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editDetailsForm)
+      });
+      setSelectedBookingDetails(null);
+      fetchData();
+    } catch (err) { alert('Error al guardar'); }
+  };
+
   const updateRoomPrice = async (id: string, newPrice: number) => {
     if (!confirm(`¿Actualizar precio a $${newPrice}?`)) return;
     try {
@@ -160,9 +210,10 @@ export default function AdminDashboard() {
         <>
           {activeTab === 'reservas' && (
             <div className={styles.panel}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
                 <h2 className={styles.panelTitle} style={{ margin: 0 }}>Agenda de Reservas</h2>
-                <div style={{ display: 'flex', gap: '10px' }}>
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                  <button onClick={() => { setManualForm(f => ({...f, roomId: rooms[0]?.id || '', date: selectedCalendarDate })); setShowManualModal(true); }} className="btn-primary" style={{ padding: '8px 16px', marginRight: '10px' }}>+ Turno Manual</button>
                   <button onClick={() => setViewMode('list')} className={styles.actionBtn} style={{ backgroundColor: viewMode === 'list' ? 'var(--accent-color)' : 'transparent', color: viewMode === 'list' ? '#fff' : 'var(--accent-color)' }}>Vista de Lista</button>
                   <button onClick={() => setViewMode('calendar')} className={styles.actionBtn} style={{ backgroundColor: viewMode === 'calendar' ? 'var(--accent-color)' : 'transparent', color: viewMode === 'calendar' ? '#fff' : 'var(--accent-color)' }}>Vista Calendario</button>
                 </div>
@@ -274,14 +325,23 @@ export default function AdminDashboard() {
                               }
 
                               return (
-                                <div key={hour} style={{ 
+                                <div key={hour} 
+                                  onClick={() => {
+                                    if (booking) {
+                                      setSelectedBookingDetails(booking);
+                                      setEditDetailsForm({ customerName: booking.customerName, customerPhone: booking.customerPhone });
+                                    }
+                                  }}
+                                  style={{ 
                                   padding: '10px', 
                                   backgroundColor: bgColor, 
                                   color: color, 
                                   borderRadius: '4px',
                                   fontSize: '0.85rem',
                                   display: 'flex',
-                                  flexDirection: 'column'
+                                  flexDirection: 'column',
+                                  cursor: booking ? 'pointer' : 'default',
+                                  border: booking ? '1px solid currentColor' : 'none'
                                 }}>
                                   <strong>{hour}:00</strong>
                                   <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{text}</span>
@@ -393,6 +453,76 @@ export default function AdminDashboard() {
             </div>
           )}
         </>
+      )}
+
+      {/* Manual Booking Modal */}
+      {showManualModal && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <h2 style={{ marginBottom: '20px' }}>Crear Turno Manual</h2>
+            <form onSubmit={handleManualCreate} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              <select required className={styles.select} value={manualForm.roomId} onChange={e => setManualForm({...manualForm, roomId: e.target.value})}>
+                {rooms.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+              </select>
+              <input required type="date" className={styles.input} value={manualForm.date} onChange={e => setManualForm({...manualForm, date: e.target.value})} />
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <select required className={styles.select} style={{ flex: 1 }} value={manualForm.startTime} onChange={e => setManualForm({...manualForm, startTime: Number(e.target.value)})}>
+                  {Array.from({length: 14}, (_, i) => i + 10).map(h => <option key={h} value={h}>{h}:00</option>)}
+                </select>
+                <select required className={styles.select} style={{ flex: 1 }} value={manualForm.duration} onChange={e => setManualForm({...manualForm, duration: Number(e.target.value)})}>
+                  {[1,2,3,4,5,6,8,10,12].map(h => <option key={h} value={h}>{h}h</option>)}
+                </select>
+              </div>
+              <input required type="text" placeholder="Nombre de la banda / cliente" className={styles.input} value={manualForm.customerName} onChange={e => setManualForm({...manualForm, customerName: e.target.value})} />
+              <input required type="tel" placeholder="WhatsApp" className={styles.input} value={manualForm.customerPhone} onChange={e => setManualForm({...manualForm, customerPhone: e.target.value})} />
+              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                <button type="submit" className="btn-primary" style={{ flex: 1 }}>Crear Turno</button>
+                <button type="button" onClick={() => setShowManualModal(false)} className="btn-secondary" style={{ flex: 1 }}>Cancelar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Booking Details / Edit Modal */}
+      {selectedBookingDetails && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <h2 style={{ marginBottom: '10px' }}>Detalles de la Reserva</h2>
+            <div style={{ marginBottom: '20px', color: 'var(--text-secondary)' }}>
+              <p><strong>Sala:</strong> {selectedBookingDetails.room.name}</p>
+              <p><strong>Horario:</strong> {selectedBookingDetails.date.split('-').reverse().join('/')} a las {selectedBookingDetails.startTime}:00hs ({selectedBookingDetails.duration}h)</p>
+              <p><strong>Total:</strong> ${selectedBookingDetails.totalPrice}</p>
+              <p>
+                <strong>Estado:</strong>{' '}
+                <span className={`${styles.status} ${styles[selectedBookingDetails.status.toLowerCase()]}`}>
+                  {selectedBookingDetails.status}
+                </span>
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
+              <label>Nombre Cliente:</label>
+              <input className={styles.input} value={editDetailsForm.customerName} onChange={e => setEditDetailsForm({...editDetailsForm, customerName: e.target.value})} />
+              <label>WhatsApp:</label>
+              <input className={styles.input} value={editDetailsForm.customerPhone} onChange={e => setEditDetailsForm({...editDetailsForm, customerPhone: e.target.value})} />
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+              <button onClick={saveModalEdit} className="btn-primary" style={{ flex: '1 1 100%' }}>Guardar Cambios</button>
+              
+              {selectedBookingDetails.status === 'PENDING' && (
+                <button onClick={() => confirmPendingBooking(selectedBookingDetails.id)} className="btn-secondary" style={{ flex: 1, backgroundColor: '#4caf50', borderColor: '#4caf50', color: 'white' }}>Confirmar Pago</button>
+              )}
+              
+              {selectedBookingDetails.status !== 'CANCELLED' && (
+                <button onClick={() => { cancelBooking(selectedBookingDetails.id); setSelectedBookingDetails(null); }} className="btn-secondary" style={{ flex: 1 }}>Cancelar Turno</button>
+              )}
+              
+              <button onClick={() => setSelectedBookingDetails(null)} className="btn-secondary" style={{ flex: 1, borderColor: '#888', color: '#888' }}>Cerrar</button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

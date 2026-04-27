@@ -19,3 +19,27 @@ export async function GET() {
     return NextResponse.json({ error: 'Failed to fetch bookings' }, { status: 500 });
   }
 }
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const { roomId, date, startTime, duration, customerName, customerPhone, totalPrice } = body;
+    
+    const booking = await prisma.booking.create({
+      data: {
+        roomId,
+        date,
+        startTime,
+        duration,
+        customerName,
+        customerPhone,
+        totalPrice,
+        customerEmail: 'manual@admin.com',
+        status: 'CONFIRMED'
+      }
+    });
+    return NextResponse.json(booking);
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to create manual booking' }, { status: 500 });
+  }
+}
