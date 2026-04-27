@@ -13,8 +13,16 @@ export default function AdminDashboard() {
   const [rooms, setRooms] = useState<any[]>([]);
   const [blockedTimes, setBlockedTimes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-
   const [blockForm, setBlockForm] = useState({ roomId: '', date: '', startTime: 10, duration: 1, reason: '' });
+
+  const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
+  const [selectedCalendarDate, setSelectedCalendarDate] = useState<string>(
+    new Date().toISOString().split('T')[0]
+  );
+
+  const [showManualModal, setShowManualModal] = useState(false);
+  const [manualForm, setManualForm] = useState({ roomId: '', date: '', startTime: 10, duration: 2, customerName: '', customerPhone: '' });
+
   const [selectedBookingDetails, setSelectedBookingDetails] = useState<any>(null);
   const [editDetailsForm, setEditDetailsForm] = useState({ customerName: '', customerPhone: '', date: '', startTime: 10, duration: 2 });
 
