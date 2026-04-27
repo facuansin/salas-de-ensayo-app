@@ -68,6 +68,16 @@ export default function AdminDashboard() {
     } catch (err) { alert('Error al cancelar'); }
   };
 
+  const deleteBooking = async (id: string) => {
+    if (!confirm('¿Seguro que querés eliminar definitivamente esta reserva cancelada? Esto no se puede deshacer.')) return;
+    try {
+      await fetch(`/api/admin/bookings/${id}`, {
+        method: 'DELETE'
+      });
+      fetchData();
+    } catch (err) { alert('Error al eliminar'); }
+  };
+
   const saveEdit = async (b: any) => {
     const newDate = (document.getElementById(`edit-date-${b.id}`) as HTMLInputElement).value;
     const newStart = Number((document.getElementById(`edit-start-${b.id}`) as HTMLSelectElement).value);
@@ -211,11 +221,13 @@ export default function AdminDashboard() {
                               </div>
                             ) : (
                               <div style={{ display: 'flex', gap: '5px' }}>
-                                {b.status !== 'CANCELLED' && (
+                                {b.status !== 'CANCELLED' ? (
                                   <>
                                     <button onClick={() => setEditingBookingId(b.id)} className={styles.actionBtn} style={{borderColor: '#4caf50', color: '#4caf50'}}>Editar</button>
                                     <button onClick={() => cancelBooking(b.id)} className={styles.actionBtn}>Cancelar</button>
                                   </>
+                                ) : (
+                                  <button onClick={() => deleteBooking(b.id)} className={styles.actionBtn} style={{borderColor: '#f44336', color: '#f44336'}}>Eliminar</button>
                                 )}
                               </div>
                             )}
@@ -231,6 +243,7 @@ export default function AdminDashboard() {
                     <Calendar 
                       selectedDate={selectedCalendarDate} 
                       onDateSelect={setSelectedCalendarDate} 
+                      occupiedDates={Array.from(new Set(bookings.filter(b => b.status !== 'CANCELLED').map(b => b.date)))}
                     />
                   </div>
                   <div style={{ flex: '2', minWidth: '300px', backgroundColor: 'var(--bg-tertiary)', borderRadius: '8px', padding: '20px' }}>

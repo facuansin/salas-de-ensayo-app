@@ -7,9 +7,10 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 interface CalendarProps {
   selectedDate: string;
   onDateSelect: (date: string) => void;
+  occupiedDates?: string[];
 }
 
-export default function Calendar({ selectedDate, onDateSelect }: CalendarProps) {
+export default function Calendar({ selectedDate, onDateSelect, occupiedDates = [] }: CalendarProps) {
   // Use local time parsing to avoid timezone offset issues
   const parseDate = (dString: string) => {
     if (!dString) return new Date();
@@ -52,6 +53,7 @@ export default function Calendar({ selectedDate, onDateSelect }: CalendarProps) 
       
       const isPast = date < today;
       const isSelected = dateString === selectedDate;
+      const isOccupied = occupiedDates.includes(dateString);
 
       days.push(
         <button
@@ -61,6 +63,7 @@ export default function Calendar({ selectedDate, onDateSelect }: CalendarProps) 
           onClick={() => onDateSelect(dateString)}
         >
           {i}
+          {isOccupied && !isPast && <div className={styles.occupiedDot}></div>}
         </button>
       );
     }
